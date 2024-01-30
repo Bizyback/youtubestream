@@ -18,6 +18,6 @@
 - Fetch data by link
 ```kotlin
     // https://www.youtube.com/watch?v=0vxOhd4qlnA
-    YoutubeStream.getVideoDetailsById(id = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
-    YoutubeStream.getVideoDataById(id = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
+    YoutubeStream.getVideoDetailsById(link = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
+    YoutubeStream.getVideoDataById(link = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
 ```
