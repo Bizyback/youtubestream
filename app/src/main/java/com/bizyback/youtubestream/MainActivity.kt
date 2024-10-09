@@ -41,7 +41,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.bizyback.libs.youtubestream.YoutubeStream
-import com.bizyback.libs.youtubestream.model.YoutubeStreamResult
+import com.bizyback.libs.youtubestream.models.YoutubeStreamResult
 import com.bizyback.youtubestream.ui.theme.YoutubeStreamTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,19 +55,13 @@ class MainActivity : ComponentActivity() {
     private val url: StateFlow<String?> = _state
 
     private suspend fun getStreamUrl() {
-        YoutubeStream.init(this)
-        val result = YoutubeStream.getVideoDataById(id = "SaneSRqePVY")
-        when(result){
+        when (val result = YoutubeStream.getVideoDetailsById(id = "SaneSRqePVY")) {
             is YoutubeStreamResult.Error -> {
                 Log.d(TAG, "getStreamUrl: failed -> ${result.message}")
             }
+
             is YoutubeStreamResult.Success -> {
-                val data = result.data
-                for (stream in data.streams) {
-                    Log.d(TAG, "Stream url -> ${stream.url} ")
-                    Log.d(TAG, "Stream detail -> ${stream.streamDetails} ")
-                }
-                _state.value = data.streams.first().url
+                _state.value = result.data.url
             }
         }
     }

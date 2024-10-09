@@ -1,9 +1,13 @@
 package com.bizyback.libs.youtubestream
 
-import android.content.Context
-import com.bizyback.libs.youtubestream.model.VideoData
-import com.bizyback.libs.youtubestream.model.VideoDetails
-import com.bizyback.libs.youtubestream.model.YoutubeStreamResult
+import android.util.Log
+import com.bizyback.libs.youtubestream.helpers.NewPipeDownloaderImpl
+import com.bizyback.libs.youtubestream.models.YoutubeStreamResult
+import com.bizyback.libs.youtubestream.models.YoutubeVideoDetails
+import com.bizyback.libs.youtubestream.models.safeExecution
+import org.schabi.newpipe.extractor.NewPipe
+import org.schabi.newpipe.extractor.ServiceList
+import org.schabi.newpipe.extractor.stream.StreamInfo
 
 /**
  * @project : YoutubeStream
@@ -14,53 +18,47 @@ import com.bizyback.libs.youtubestream.model.YoutubeStreamResult
  */
 object YoutubeStream {
 
-    private var ytStream: YTStream? = null
+    private val TAG = "YoutubeStreamLib"
     private val base = "https://www.youtube.com/watch?v="
 
-    fun init(context: Context) {
-        ytStream = YTStream(context = context)
+    init {
+        NewPipe.init(NewPipeDownloaderImpl())
+        NewPipe.getService(ServiceList.YouTube.serviceId)
     }
 
-    suspend fun getVideoDataById(id: String): YoutubeStreamResult<VideoData> {
-        val stream = ytStream
-            ?: return YoutubeStreamResult.Error(message = "YoutubeStream is not initialized, please initialize to continue \nRun `YoutubeStream.init(context)` to initialize")
-        val result = stream.getVideoDataById(id = id)
-        if (result.isFailure) {
-            val error = result.exceptionOrNull()?.localizedMessage
-                ?: "Unable to get video details by id -> id = $id"
-            return YoutubeStreamResult.Error(message = error)
+    suspend fun getVideoDetailsById(id: String): YoutubeStreamResult<YoutubeVideoDetails> =
+        getVideoDetails(url = "$base$id")
+
+    suspend fun getVideoDetailsByLink(url: String): YoutubeStreamResult<YoutubeVideoDetails> =
+        getVideoDetails(url = url)
+
+    private suspend fun getVideoDetails(url: String) = safeExecution {
+        val streamInfo = StreamInfo.getInfo(url)
+        if (streamInfo.videoStreams.isNullOrEmpty()) throw Exception("No video stream info found")
+        streamInfo.videoStreams.forEach {
+            Log.i(TAG,
+                buildString {
+                    append("-".repeat(10))
+                    append(" STREAM ")
+                    append("-".repeat(10))
+                    append("\n")
+                    append("FPS: ${it.fps} \n")
+                    append("Codec: ${it.codec} \n")
+                    append("Format: ${it.format} \n")
+                    append("Quality: ${it.quality} \n")
+                    append("Bitrate: ${it.bitrate} \n")
+                    append("Resolution: ${it.getResolution()} \n")
+                    append("Delivery Method : ${it.deliveryMethod} \n")
+                }
+            )
         }
-        val data = result.getOrNull()
-            ?: return YoutubeStreamResult.Error(message = "VideoData for id ($id) was null")
-        return YoutubeStreamResult.Success(data = data)
-    }
-
-    suspend fun getVideoDetailsById(id: String): YoutubeStreamResult<VideoDetails> {
-        val stream = ytStream
-            ?: return YoutubeStreamResult.Error(message = "YoutubeStream is not initialized, please initialize to continue \nRun `YoutubeStream.init(context)` to initialize")
-        val result = stream.getVideoDetailsById(id = id)
-        if (result.isFailure) {
-            val error = result.exceptionOrNull()?.localizedMessage
-                ?: "Unable to get video details by id -> id = $id"
-            return YoutubeStreamResult.Error(message = error)
-        }
-        val data = result.getOrNull()
-            ?: return YoutubeStreamResult.Error(message = "VideoDetails for id ($id) was null")
-        return YoutubeStreamResult.Success(data = data)
-    }
-
-    suspend fun getVideoDetailsByLink(link: String): YoutubeStreamResult<VideoDetails> {
-        if (link.contains(base).not())
-            return YoutubeStreamResult.Error(message = "Invalid youtube link : $link")
-        val id = link.replace(base, "")
-        return getVideoDetailsById(id = id)
-    }
-
-    suspend fun getVideoDataByLink(link: String): YoutubeStreamResult<VideoData> {
-        if (link.contains(base).not())
-            return YoutubeStreamResult.Error(message = "Invalid youtube link : $link")
-        val id = link.replace(base, "")
-        return getVideoDataById(id = id)
+        val bestVideoStream = streamInfo.videoStreams
+            .filterNotNull()
+            .filter { it.content != null }
+            .sortedByDescending { it.quality }
+            .first()
+        if (bestVideoStream.content == null) throw Exception("No video stream content found")
+        YoutubeVideoDetails(url = bestVideoStream.content, fps = bestVideoStream.fps)
     }
 
 }

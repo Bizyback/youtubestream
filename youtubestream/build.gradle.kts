@@ -53,6 +53,11 @@ dependencies {
     // kotlin serialization
     implementation(libs.kotlinx.serialization.json)
 
+    // okhttp
+    implementation(libs.okhttp)
+
+    // newpipe-extractor
+    implementation(libs.newpipe.extractor)
 }
 
 afterEvaluate {
