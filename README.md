@@ -1,10 +1,5 @@
 # YoutubeStream
-- gets video data details for Youtube via a link
-
-## Initialization
-```kotlin
-    YoutubeStream.init(context)
-```
+- gets video data details for Youtube via a link or video id
 
 ## Usage
 - Fetch data by id
@@ -17,7 +12,7 @@
 ```
 - Fetch data by link
 ```kotlin
-    // https://www.youtube.com/watch?v=0vxOhd4qlnA
+    // where link is https://www.youtube.com/watch?v=0vxOhd4qlnA
     YoutubeStream.getVideoDetailsById(link = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
     YoutubeStream.getVideoDataById(link = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
 ```
