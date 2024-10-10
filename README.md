@@ -7,12 +7,9 @@
 
     // https://www.youtube.com/watch?v=0vxOhd4qlnA where id -> 0vxOhd4qlnA
     YoutubeStream.getVideoDetailsById(id = "0vxOhd4qlnA")
-    YoutubeStream.getVideoDataById(id = "0vxOhd4qlnA")
-
 ```
 - Fetch data by link
 ```kotlin
     // where link is https://www.youtube.com/watch?v=0vxOhd4qlnA
-    YoutubeStream.getVideoDetailsById(link = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
-    YoutubeStream.getVideoDataById(link = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
+    YoutubeStream.getVideoDetailsByLink(link = "https://www.youtube.com/watch?v=0vxOhd4qlnA")
 ```
