@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.okhttp)
 
     // newpipe-extractor
-    implementation(libs.newpipe.extractor)
+    implementation(libs.bizyback.newpipe)
 }
 
 afterEvaluate {
